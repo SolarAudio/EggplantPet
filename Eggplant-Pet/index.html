@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Eggplant Emergency – Pet</title>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: 'Press Start 2P', monospace;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background: #0f0615;
+      color: #eee;
+      overflow: hidden;
+    }
+
+    #app {
+      width: 100%;
+      height: 100%;
+      position: relative;
+    }
+
+    .screen {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 1em;
+      overflow-y: auto;
+    }
+
+    .screen.active {
+      display: flex !important;
+    }
+
+    .intro-box,
+    .game-box,
+    .concert-box {
+      max-width: 700px;
+      width: 100%;
+      background-color: #140820;
+      border: 4px solid #a84fcb;
+      border-radius: 16px;
+      padding: 1em;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .text-box,
+    .name-box,
+    #explanation-box {
+      background: #1e0f2e;
+      border: 2px solid #a84fcb;
+      padding: 1em;
+      margin-top: 1em;
+      width: 100%;
+      max-width: 600px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: flex-start;
+      overflow-y: auto;
+      text-align: left;
+    }
+
+    .intro-eggplant,
+    #eggplant {
+      width: 192px;
+      height: 192px;
+      image-rendering: pixelated;
+      margin: 1em auto;
+    }
+
+    /* ✅ Input and button layout for name */
+    .name-box label {
+      margin-bottom: 0.5em;
+    }
+
+    /*.name-input-row {
+      display: flex;
+      gap: 0.5em;
+      width: 100%;
+    }*/
+    .name-input-col {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      gap: 0.5em;
+    }
+
+    .name-box input {
+      flex: 1;
+      font-size: 1rem;
+      padding: 0.5em 1em;
+      border-radius: 4px;
+      background-color: #32084c;
+      color: #a4ffcb;
+      border: 2px solid #a84fcb;
+    }
+
+    .name-box button {
+      font-size: 1rem;
+      padding: 0.5em 1em;
+      border-radius: 4px;
+      background-color: #a84fcb;
+      color: white;
+      border: 2px solid white;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .pixel-text {
+      font-size: 0.9rem;
+      text-align: left;
+    }
+
+    #game-name {
+      font-size: 1.2rem;
+      margin-bottom: 0.5em;
+      text-align: center;
+    }
+
+    .quest {
+      background: #1e0f2e;
+      border: 2px solid #5b2a7a;
+      padding: 0.5em;
+      margin: 0.5em 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.6rem;
+      width: 100%;
+    }
+
+    .quest.completed {
+      background: #1b2e1e;
+      border-color: #2ae884;
+    }
+
+    /* ✅ Make Insta button match Spotify button exactly */
+    .insta-btn,
+    .spotify-btn {
+      display: block;
+      padding: 0.5em 1em;
+      font-size: 0.8rem;
+      font-weight: bold;
+      border-radius: 6px;
+      text-align: center;
+      text-decoration: none;
+      width: 100%;
+      max-width: 300px;
+      margin: 0 auto;
+    }
+
+    .insta-btn {
+      background: linear-gradient(45deg, #feda75, #fa7e1e, #d62976, #962fbf, #4f5bd5);
+      color: white;
+    }
+
+    .spotify-btn {
+      background: #1DB954;
+      color: white;
+    }
+
+    #ready-text {
+      margin-top: 1em;
+      font-size: 0.8rem;
+      color: #a4ffcb;
+      text-align: center;
+      display: none;
+    }
+
+    #concert-scene {
+      display: none;
+      width: 100%;
+      height: 100%;
+      padding: 1em;
+    }
+
+    .concert-box img {
+      width: 100%;
+      max-width: 100%;
+      height: auto;
+      max-height: 50vh;
+      image-rendering: pixelated;
+      margin-bottom: 1em;
+      animation: zoomout 5s ease forwards;
+    }
+
+    @keyframes zoomout {
+      0% {
+        transform: scale(1);
+      }
+
+      100% {
+        transform: scale(1.05);
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div id="app">
+    <div id="intro" class="screen active">
+      <div class="intro-box">
+        <img src="assets/gifs/eggplant_happy.gif" class="intro-eggplant" alt="Eggplant Pet">
+        <div class="text-box pixel-text">
+          <div id="intro-text"></div>
+        </div>
+        <div id="name-box" class="name-box" style="display: none;">
+          <label for="pet-name">Name your eggplant:</label>
+          <div class="name-input-col">
+            <input type="text" id="pet-name" maxlength="12" onkeydown="if(event.key==='Enter') finishIntro()" />
+            <button onclick="finishIntro()">Continue</button>
+          </div>
+        </div>
+
+
+      </div>
+    </div>
+
+    <div id="game" class="screen">
+      <div class="game-box">
+        <div id="game-name" class="pixel-text"></div>
+        <img id="eggplant" src="assets/gifs/eggplant_happy.gif">
+        <p id="status" class="pixel-text">I'm feeling good </p>
+        <div id="tamagotchi-controls"
+          style="margin-top: 0.5em; display: flex; flex-direction: column; align-items: center;">
+          <!--<div class="pixel-text">🧐 Take care of your eggplant:</div> -->
+          <div style="margin-top: 0.5em; display: flex; gap: 1em; flex-wrap: wrap; justify-content: center;">
+            <button onclick="completeWaterQuest()">💧 Water</button>
+            <button onclick="makeSad()"> Ignore</button>
+            <button onclick="headbang()">Music</button> <!-- ✅ New Button -->
+          </div>
+        </div>
+        <div id="explanation-box" class="pixel-text"></div>
+
+
+        <div id="quests" class="pixel-text">
+          <!-- Instagram -->
+          <div class="quest">
+            <span class="quest-text">📱 Follow us on Instagram</span>
+            <input type="checkbox" id="quest1" onclick="checkInstagramQuest()">
+          </div>
+          <div style="text-align: center; margin-top: 0.5em;">
+            <a href="https://www.instagram.com/eggplant_emergency_band/" target="_blank" onclick="checkInstagramQuest()"
+              class="action-link insta-btn">
+              📷 Follow on Instagram
+            </a>
+          </div>
+
+          <!-- Spotify -->
+          <div class="quest">
+            <span class="quest-text">🎵 Listen to 3 Songs</span>
+            <input type="checkbox" id="quest2" disabled>
+          </div>
+          <div style="text-align: center; margin-top: 0.5em;">
+            <a href="https://open.spotify.com/artist/3r9v0HGJnSEBYfeOhoUseL" target="_blank"
+              onclick="markSpotifyQuest()" class="action-link spotify-btn">
+              🎧 Listen on Spotify
+            </a>
+          </div>
+
+          <!-- Watering -->
+          <div class="quest">
+            <span class="quest-text">💧 Stay hydrated</span>
+            <input type="checkbox" id="quest3" disabled>
+          </div>
+
+          <!-- Progress Bar -->
+          <!-- Progress Bar -->
+          <div style="margin-top: 1em;">
+            Progress:<progress id="progress-bar" value="0" max="3"></progress>
+          </div>
+
+          <div id="ready-text">🎉 Your eggplant is now ready for the concert! 🎉</div>
+
+          <!-- Button -->
+          <button id="concert-btn" style="display: none; margin-top: 1em;" onclick="goToConcert()">🎤 LET'S GO TO THE
+            CONCERT</button>
+
+
+
+        </div>
+      </div>
+    </div>
+    <div id="concert-scene" class="screen">
+      <div class="concert-box">
+        <img src="assets/gifs/Konzert.gif" alt="Concert GIF">
+        <audio id="concert-audio">
+          <source src="assets/music/eggplant_emergency_track.mp3" type="audio/mpeg">
+        </audio>
+        <p class="pixel-text" style="text-align: center;">
+          You're finally at the concert with your eggplant! Maybe you should also go to the next EGGPLANT EMERGENCY
+          concert? I heard it's a real EGGsperience...
+        </p>
+      </div>
+    </div>
+  </div>
+  <script>
+    const eggplantImg = document.getElementById('eggplant');
+    const statusText = document.getElementById('status');
+    const introTextBox = document.getElementById('intro-text');
+    const introScreen = document.getElementById('intro');
+    const gameScreen = document.getElementById('game');
+    const nameBox = document.getElementById('name-box');
+    const progressBar = document.getElementById('progress-bar');
+    const concertBtn = document.getElementById('concert-btn');
+    const explanationBox = document.getElementById('explanation-box');
+    const questsBox = document.getElementById('quests');
+    const concertScene = document.getElementById('concert-scene');
+    const gameName = document.getElementById('game-name');
+
+    let fullIntroText = [
+      "This is your eggplant...",
+      "It dreams of going to an EGGPLANT EMERGENCY concert...",
+      "But it’s not ready... yet."
+    ];
+    let introIndex = 0;
+    let textPosition = 0;
+
+    function typeNextLine() {
+      if (introIndex < fullIntroText.length) {
+        let currentLine = fullIntroText[introIndex];
+        if (textPosition <= currentLine.length) {
+          introTextBox.textContent = currentLine.slice(0, textPosition++);
+          setTimeout(typeNextLine, 50);
+        } else {
+          introIndex++;
+          textPosition = 0;
+          setTimeout(typeNextLine, 700);
+        }
+      } else {
+        nameBox.style.display = 'block';
+      }
+    }
+
+    typeNextLine();
+
+    function finishIntro() {
+      const nameInput = document.getElementById('pet-name');
+      const name = nameInput.value.trim();
+      gameName.textContent = name || "your Eggplant";
+      introScreen.remove();
+      gameScreen.style.display = 'flex';
+      animateOverlayExplanation(name);
+    }
+
+    function animateOverlayExplanation(name) {
+      explanationBox.style.display = 'block';
+      const lines = [
+        `Great! To help ${name || 'your eggplant'} prepare for the concert, you must complete three quests:`,
+        `1. Follow the band on Instagram to know when the concert is.`,
+        `2. Listen to 3 songs so ${name || 'your eggplant'} knows the lyrics.`,
+        `3. Drink some water so ${name || 'your eggplant'} stays hydrated.`
+      ];
+      let idx = 0;
+      function typeLine() {
+        if (idx < lines.length) {
+          explanationBox.textContent = '';
+          let charIndex = 0;
+          function typeChar() {
+            if (charIndex < lines[idx].length) {
+              explanationBox.textContent += lines[idx].charAt(charIndex++);
+              setTimeout(typeChar, 30);
+            } else {
+              idx++;
+              setTimeout(typeLine, 500);
+            }
+          }
+          typeChar();
+        } else {
+          setTimeout(() => {
+            explanationBox.style.display = 'none';
+            questsBox.style.display = 'block';
+          }, 2000);
+        }
+      }
+      typeLine();
+    }
+
+    function setHappy() {
+      eggplantImg.src = "assets/gifs/eggplant_happy.gif";
+      statusText.textContent = "Yay! I'm happy now 💜";
+    }
+
+    function followInstagram() {
+      window.open("https://www.instagram.com/eggplant_emergency_band/", "_blank");
+      document.getElementById('quest1').checked = true;
+      document.getElementById('quest1').disabled = false;
+      updateProgress();
+    }
+
+
+
+    function setSpotifyMonitor() {
+      eggplantImg.src = "assets/gifs/eggplant_headbang.gif";
+      document.getElementById('quest2').checked = true;
+      document.getElementById('quest2').disabled = false;
+      statusText.textContent = "We're rockin' out! 🎶";
+      updateProgress();
+    }
+
+    function updateProgress() {
+      const completed = Array.from(document.querySelectorAll('#quests input[type="checkbox"]:checked')).length;
+      progressBar.value = completed;
+
+      if (completed === 3) {
+        concertBtn.style.display = 'block';
+        document.getElementById('ready-text').style.display = 'block';
+
+        // Hide quest-related UI
+        document.getElementById('quests').style.display = 'none';
+
+        // Optionally move concertBtn directly under eggplant:
+        const gameArea = document.getElementById('game');
+        gameArea.appendChild(document.getElementById('ready-text'));
+        gameArea.appendChild(concertBtn);
+      }
+    }
+
+
+    function goToConcert() {
+      // Hide all .screen elements
+      document.querySelectorAll('.screen').forEach(el => el.style.display = 'none');
+
+      // Show concert scene
+      concertScene.style.display = 'flex';
+
+      // Play audio if available
+      const audio = document.getElementById('concert-audio');
+      if (audio) {
+        audio.currentTime = 0;
+        audio.play().catch(err => {
+          console.warn("Audio play failed:", err);
+        });
+      }
+    }
+
+
+    function makeSad() {
+      eggplantImg.src = "assets/gifs/Eggplant_sad.gif";
+      statusText.textContent = "I'm feeling neglected... ";
+    }
+
+    function headbang() {
+      eggplantImg.src = "assets/gifs/eggplant_headbang.gif";
+      statusText.textContent = "Yes! I love listening to EGGPLANT EMERGENCY!";
+    }
+    function completeWaterQuest() {
+      document.getElementById('quest3').checked = true;
+      document.getElementById('quest3').disabled = false;
+      eggplantImg.src = "assets/gifs/Watering.gif";
+      statusText.textContent = "Ahh... refreshing ";
+      setTimeout(() => {
+        eggplantImg.src = "assets/gifs/eggplant_happy.gif";
+        statusText.textContent = "I'm happy and hydrated 💜";
+        updateProgress();
+      }, 3000);
+    }
+
+    function checkInstagramQuest() {
+      const box = document.getElementById('quest1');
+      box.checked = true;
+      box.disabled = false;
+      updateProgress();
+    }
+    function markSpotifyQuest() {
+      const box = document.getElementById('quest2');
+      box.checked = true;
+      box.disabled = false;
+      updateProgress();
+    }
+
+  </script>
+</body>
+
+</html>
